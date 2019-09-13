@@ -3,9 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.19.0",
+    "bootstrap": "^4.3.1",
+    "draft-js": "^0.11.0",
+    "draft-js-prism": "^1.0.6",
+    "is-url-superb": "^3.0.0",
+    "js-video-url-parser": "^0.4.0",
+    "prismjs": "^1.17.1",
+    "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-scripts": "3.1.1"
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "3.1.1",
+    "reactstrap": "^8.0.1",
+    "styled-components": "^4.3.2",
+    "styled-icons": "^8.4.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -14,7 +26,28 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "no-trailing-spaces": ["error", { "skipBlankLines": false }],
+      "indent": ["error", 2],
+      "space-infix-ops": [2, { "int32Hint": false }],
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "comma-dangle": [
+        "error",
+        "never"
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "eol-last": [
+        "error",
+        "always"
+      ]
+    }
   },
   "browserslist": {
     "production": [
