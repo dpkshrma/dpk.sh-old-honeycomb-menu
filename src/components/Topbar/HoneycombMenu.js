@@ -5,18 +5,28 @@ import Hex from './Hex'
 import { ThreeBars } from 'styled-icons/octicons/ThreeBars'
 import { Close } from 'styled-icons/material/Close'
 
-const defaultWinOnScrollFn = window.onscroll
-
 const Container = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   z-index: 999;
 `
+const Svg = styled.svg`
+  overflow: visible;
+`
+const MenuIconContainer = styled.div`
+  z-index: -10;
+  background-color: ${({ open }) => open ? '#560bd0' : 'white'};
+  padding: 40px;
+  position: absolute;
+  top: 40px;
+  left: 80px;
+  width: 120px;
+`
 const OpenMenuIcon = styled(ThreeBars)`
   position: absolute;
   top: 60px;
-  left: 115px;
+  left: 114px;
   fill: #aaa;
   cursor: pointer;
   &:hover {
@@ -29,14 +39,29 @@ const OpenMenuIcon = styled(ThreeBars)`
 const CloseMenuIcon = styled(Close)`
   position: absolute;
   top: 60px;
-  left: 115px;
-  fill: #aaa;
+  left: 114px;
+  fill: white;
   cursor: pointer;
+`
+const Menu = styled.div`
+  position: absolute;
+  top: 140px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 20px;
+  width: 100%;
+  display: ${({ show }) => show ? 'flex' : 'none'};
+`
+const MenuItem = styled.div`
+  color: white;
+  font-weight: bold ;
+  font-size: 60px;
+  cursor: pointer;
+  letter-spacing: 3px;
   &:hover {
-    fill: #560bd0;
-  }
-  &:active {
-    fill: #000;
+    text-decoration: underline;
+    color: gold;
   }
 `
 
@@ -57,15 +82,10 @@ class HoneycombMenu extends React.Component {
   }
 
   updateWindowDimensions = () => {
-    this.setState({ vw: window.innerWidth, vh: window.innerHeight })
+    this.setState({ vw: document.body.scrollWidth, vh: window.innerHeight })
   }
 
   toggleMenu = () => {
-    if (!this.state.menuOpen) {
-      window.onscroll = function () { window.scrollTo(0, 0) }
-    } else {
-      window.onscroll = defaultWinOnScrollFn
-    }
     this.setState({ menuOpen: !this.state.menuOpen })
   }
 
@@ -80,11 +100,14 @@ class HoneycombMenu extends React.Component {
     const X = B + H
     const Y = L
 
-    const maxDRows = Math.floor(vw / X)
+    const hexArea = (L * (2 * B + H)) +  L * H
+    const totalScreenArea = (vw * vh)
+    console.log('hexArea, totalScreenArea :', hexArea, totalScreenArea)
+    const totalPoints = Math.ceil(totalScreenArea / hexArea)
 
     let points = []
-    let initialSameColTimes = 3
-    for (let dRowNo = 4; dRowNo <= maxDRows; dRowNo++) {
+    let initialSameColTimes = 2
+    for (let dRowNo = 3;; dRowNo++) {
       const startY = (dRowNo % 2 === 0) ? 0 : -1
       if (startY === -1) {
         initialSameColTimes += 1
@@ -93,10 +116,20 @@ class HoneycombMenu extends React.Component {
       let sameColTimes = initialSameColTimes
       let i = dRowNo
       for (let j = startY; j < maxY + 1; ) {
-        points.push({
-          y: Oy + j,
-          x: i
-        })
+        if ((j * L) > vh) {
+          break
+        }
+        const point = { y: j, x: i }
+        if (
+          (j * L) > ((vh / 2) - 300) &&
+          (j * L) < ((vh / 2) + 200) &&
+          (i * (B + H)) > ((vw / 2) - 300) &&
+          (i * (B + H)) < ((vw / 2) + 200)
+        ) {
+          point.noStroke = true
+        }
+
+        points.push(point)
         sameColTimes -= 1
         if (sameColTimes > 0) {
           j += 2
@@ -105,26 +138,17 @@ class HoneycombMenu extends React.Component {
           j += 1
         }
       }
+      if (points.length >= totalPoints) break
     }
+    console.log('points, totalPoints : ', points.length, totalPoints)
+
     const excludePoints = Array.from({ length: 40 }).map(() => _.random(points.length))
-    const noStrokePoints = []
-    // const noStrokePoints = [81, 82, 83, 84, 85, 51, 52, 53, 54, 55, 65, 66, 67, 68, 69, 70, 38, 39, 40, 41, 27, 28 ]
-    points = _.map(points, (point, i) => {
-      if (_.includes(noStrokePoints, i)) {
-        point.noStroke = true
-      }
-      return point
-    })
     points = _.filter(points, (point, i) => {
-      if (point.noStroke) {
-        return true
-      }
-      if (_.includes(excludePoints, i)) {
+      if (!point.noStroke && _.includes(excludePoints, i)) {
         return false
       }
       return true
     })
-
 
     return (
       <>
@@ -160,6 +184,7 @@ class HoneycombMenu extends React.Component {
     }
     return (
       <Container style={{ height: `${containerSize.h}px`, width: `${containerSize.w}px` }}>
+        <MenuIconContainer open={menuOpen} />
         {
           (menuOpen === true) ? (
             <CloseMenuIcon size="40px" onClick={this.toggleMenu} />
@@ -167,7 +192,7 @@ class HoneycombMenu extends React.Component {
             <OpenMenuIcon size="40px" onClick={this.toggleMenu} />
           )
         }
-        <svg viewBox={`0 0 ${containerSize.w} ${containerSize.h}`}>
+        <Svg viewBox={`0 0 ${containerSize.w} ${containerSize.h}`}>
           <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style={{ stopColor: 'rgb(255,255,0)', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: 'rgb(255,0,0)', stopOpacity: 1 }} />
@@ -183,7 +208,7 @@ class HoneycombMenu extends React.Component {
           <Hex origin={{ x: Ox + 4 * X, y: Oy }}/>
           {/* Row 2 */}
           <Hex origin={{ x: Ox - X, y: Oy + Y }} />
-          <Hex origin={{ x: Ox + X, y: Oy + Y }} fill="none" />
+
           <Hex origin={{ x: Ox + 3 * X, y: Oy + Y }} />
           {/* Row 3 */}
           <Hex origin={{ x: Ox, y: Oy + 2 * Y }}/>
@@ -199,39 +224,25 @@ class HoneycombMenu extends React.Component {
           <Hex origin={{ x: Ox + X, y: Oy + 5 * Y }} />
 
           {
-            (this.state.menuOpen === true) && (
+            (menuOpen === true) && (
               this.renderMenu()
             )
           }
-        </svg>
-        {
-          (this.state.menuOpen === 'osindfosifn') && (
-            <div style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              justifyContent: 'center'
-            }}>
-              <div className="menu" style={{
-                position: 'absolute',
-                zIndex: '1100',
-                top: '180px',
-                margin: 'auto',
-                fontSize: '48px',
-                fontWeight: 'bold',
-                background: 'gold',
-                boxShadow: '0 0 100px gold',
-                padding: '40px',
-                color: 'white',
-                textShadow: '0 0 2px',
-                alignSelf: 'center',
-                justifySelf: 'center'
-              }}>
-                Home
-              </div>
-            </div>
-          )
-        }
+        </Svg>
+        <Menu show={menuOpen}>
+          <MenuItem>
+            HOME
+          </MenuItem>
+          <MenuItem>
+            BLOG
+          </MenuItem>
+          <MenuItem>
+            PROJECTS
+          </MenuItem>
+          <MenuItem>
+            CONNECT
+          </MenuItem>
+        </Menu>
       </Container>
     )
   }
