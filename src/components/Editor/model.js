@@ -13,13 +13,16 @@ export const createEditorState = (
   content = null,
   decorators = defaultDecorators
 ) => {
-  if (content === null) {
+  if (!content) {
     return EditorState.createEmpty(decorators)
   }
   let contentState = null
   if (typeof content === 'string') {
     contentState = ContentState.createFromText(content)
   } else {
+    if (!content.entityMap) {
+      content.entityMap = {}
+    }
     contentState = convertFromRaw(content)
   }
   return EditorState.createWithContent(contentState, decorators)
@@ -30,10 +33,10 @@ Returns default block-level metadata for various block type. Empty object otherw
 */
 export const getDefaultBlockData = (blockType, initialData = {}) => {
   switch (blockType) {
-    case Block.TODO:
-      return { checked: false }
-    default:
-      return initialData
+  case Block.TODO:
+    return { checked: false }
+  default:
+    return initialData
   }
 }
 

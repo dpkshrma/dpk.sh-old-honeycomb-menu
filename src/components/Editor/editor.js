@@ -27,7 +27,7 @@ const Container = styled.div`
   line-height: 26px;
 `
 
-class PostEditor extends React.Component {
+class CustomEditor extends React.Component {
   getEditorState = () => this.props.editorState;
 
   handleKeyCommand = (command, editorState) => {
@@ -130,20 +130,20 @@ class PostEditor extends React.Component {
 
       if (currentBlock.getLength() === 0) {
         switch (blockType) {
-          case Block.UL:
-          case Block.OL:
-          case Block.BLOCKQUOTE:
-          case Block.BLOCKQUOTE_CAPTION:
-          case Block.CAPTION:
-          case Block.H2:
-          case Block.H3:
-          case Block.H1:
-            this.props.onChange(
-              resetBlockWithType(editorState, Block.UNSTYLED)
-            )
-            return HANDLED
-          default:
-            return NOT_HANDLED
+        case Block.UL:
+        case Block.OL:
+        case Block.BLOCKQUOTE:
+        case Block.BLOCKQUOTE_CAPTION:
+        case Block.CAPTION:
+        case Block.H2:
+        case Block.H3:
+        case Block.H1:
+          this.props.onChange(
+            resetBlockWithType(editorState, Block.UNSTYLED)
+          )
+          return HANDLED
+        default:
+          return NOT_HANDLED
         }
       }
 
@@ -234,7 +234,7 @@ class PostEditor extends React.Component {
   }
 }
 
-PostEditor.defaultProps = {
+CustomEditor.defaultProps = {
   readOnly: false,
   continuousBlocks: [
     Block.UNSTYLED,
@@ -246,4 +246,4 @@ PostEditor.defaultProps = {
   ]
 }
 
-export default PostEditor
+export default CustomEditor
