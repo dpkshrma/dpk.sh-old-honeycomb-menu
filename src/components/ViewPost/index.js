@@ -1,6 +1,9 @@
+import _ from 'lodash'
 import React from 'react'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 import { Clock } from 'styled-icons/evil/Clock'
+import Editor, { createEditorState } from '../Editor'
 import Cover from './Cover'
 import Topbar from '../Topbar'
 
@@ -13,7 +16,7 @@ const Wrapper = styled.div`
   align-items: center;
 `
 const Body = styled.div`
-  max-width: 1024px;
+  max-width: 920px;
 `
 const Header = styled.div`
   margin: 40px 0;
@@ -33,50 +36,71 @@ const Content = styled.div`
 `
 
 class ViewPost extends React.Component {
-  componentDidMount() {
+  state = {
+    post: {}
+  }
+
+  async componentDidMount() {
+    this.setState({
+      post: await this.getCurrentPost()
+    })
     window.scrollTo(0, 0)
   }
 
+  getCurrentPost = async () => {
+    try {
+      const { params } = this.props.match
+      const postId = _.get(params, 'id')
+      const post = _.assign({}, (await import(`../../data/posts/${postId}.json`)).default)
+      post.body = createEditorState(post.body)
+      return post
+    } catch(err) {
+      console.error(err)
+      return {}
+    }
+  }
+
   render() {
-    return (
-      <Container>
-        <Topbar />
+    const { post } = this.state
+    let content = (
+      <Wrapper>
+        Loading...
+      </Wrapper>
+    )
+    if (!_.isEmpty(post)) {
+      content = (
         <Wrapper>
-          <Cover />
+          {
+            post.coverImageUrl && (
+              <Cover url={post.coverImageUrl} />
+            )
+          }
           <Body>
             <Header>
               <Title>
-                How does this site works?
+                {post.title}
               </Title>
               <Subtitle>
-                <Clock size="20px" /> 12 min read
+                <Clock size="20px" />{_.get(post, 'ttr.text', '')}
               </Subtitle>
             </Header>
             <Content>
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              <br />
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-              This static site is built on create-react-app and has a simple but interesting story about its inner workings
-
+              <Editor
+                readOnly={true}
+                editorState={post.body}
+              />
             </Content>
           </Body>
         </Wrapper>
+      )
+    }
+    return (
+      <Container>
+        <Topbar />
+        {content}
       </Container>
     )
   }
 }
 
-export default ViewPost
+export default withRouter(ViewPost)

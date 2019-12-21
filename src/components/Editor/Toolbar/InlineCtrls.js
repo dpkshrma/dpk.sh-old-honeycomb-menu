@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { RichUtils } from 'draft-js'
-import { Bold, Italic, Underline } from '../icons/editor'
+import { Bold, Italic, Underline, InlineCode } from '../icons/editor'
 
 const ControlsContainer = styled.div`
   display: flex;
@@ -27,6 +27,11 @@ const InlineStyleControls = props => {
       <Underline
         onMouseDown={onClick('UNDERLINE')}
         active={currentStyle.has('UNDERLINE')}
+      />
+      <InlineCode
+        onMouseDown={onClick('CODE')}
+        active={currentStyle.has('CODE')}
+        size="24"
       />
     </ControlsContainer>
   )

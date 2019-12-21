@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
 import styled from 'styled-components'
-import Hex from './Hex'
+import chroma from 'chroma-js'
+import Hex, { Polygon } from './Hex'
 import { ThreeBars } from 'styled-icons/octicons/ThreeBars'
 import { Close } from 'styled-icons/material/Close'
 
@@ -13,15 +14,6 @@ const Container = styled.div`
 `
 const Svg = styled.svg`
   overflow: visible;
-`
-const MenuIconContainer = styled.div`
-  z-index: -10;
-  background-color: ${({ open }) => open ? '#560bd0' : 'white'};
-  padding: 40px;
-  position: absolute;
-  top: 40px;
-  left: 80px;
-  width: 120px;
 `
 const OpenMenuIcon = styled(ThreeBars)`
   position: absolute;
@@ -43,25 +35,65 @@ const CloseMenuIcon = styled(Close)`
   fill: white;
   cursor: pointer;
 `
-const Menu = styled.div`
+const MenuContainer = styled.div`
   position: absolute;
-  top: 140px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-left: 20px;
-  width: 100%;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -132px;
   display: ${({ show }) => show ? 'flex' : 'none'};
+  transition: opacity 1s ease-in;
+  opacity: ${({ show }) => show ? 1 : 0};
 `
+class Menu extends React.Component {
+  state = {
+    show: false
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.show !== this.props.show) {
+      clearTimeout(this.timer)
+      if (this.props.show) {
+        this.timer = setTimeout(() => {
+          this.setState({ show: true })
+        }, 2)
+      } else {
+        this.setState({ show: false })
+      }
+    }
+  }
+  render() {
+    const { show } = this.state
+    const { children } = this.props
+    return (
+      <MenuContainer show={show}>
+        {children}
+      </MenuContainer>
+    )
+  }
+}
 const MenuItem = styled.div`
-  color: white;
-  font-weight: bold ;
-  font-size: 60px;
+  color: #0008;
+  font-weight: bold;
+  font-size: 40px;
   cursor: pointer;
   letter-spacing: 3px;
+  margin-bottom: 12px;
+  line-height: 1.5;
   &:hover {
     text-decoration: underline;
-    color: gold;
+    color: #560bd0;
+  }
+`
+const MenuHex = styled(Polygon)`
+  cursor: pointer;
+  &:hover + ${OpenMenuIcon} {
+    fill: #560bd0;
+  }
+  &:active + ${OpenMenuIcon} {
+    fill: #000;
   }
 `
 
@@ -82,16 +114,81 @@ class HoneycombMenu extends React.Component {
   }
 
   updateWindowDimensions = () => {
-    this.setState({ vw: document.body.scrollWidth, vh: window.innerHeight })
+    const vw = window.innerWidth
+    // const vw = (window.innerWidth > 1440) ? 1440 : window.innerWidth
+    const vh = window.innerHeight
+    this.setState({ vw, vh })
   }
 
   toggleMenu = () => {
     this.setState({ menuOpen: !this.state.menuOpen })
   }
 
-  renderMenu = () => {
+  getHexScale = () => {
+    const { vw } = this.state
+    if (vw > 600) return Hex.defaultProps.scale
+    if (vw > 500) return 7
+    if (vw > 450) return 6
+    if (vw > 400) return 5
+    return 4
+  }
+
+  renderPartialHoneycomb = () => {
+    const { menuOpen, vw } = this.state
+    const { l, b, h, origin } = Hex.defaultProps
+    const scale = this.getHexScale()
+    const B = scale * b
+    const H = scale * h
+    const L = scale * l
+    const X = B + H
+    const Y = L
+    const Ox = origin.x
+    const Oy = origin.y
+
+    const points = [
+      [-1, -1], [1, -1], [3, -1], [5, -1], [0, 0],
+      [2, 0], [4, 0], [-1, 1], [-1, 3], [3, 1], [0, 2],
+      [2, 2], [1, 3], [3, 3], [0, 4], [-1, 5], [1, 5]
+    ].map(([fx, fy]) => ({ x: Ox + (fx * X), y: Oy + (fy * Y) }))
+
+    return (
+      <>
+        {
+          points.map((pointOrigin, i) => {
+            return (
+              <Hex scale={scale} origin={pointOrigin} key={i} />
+            )
+          })
+        }
+        <Hex
+          scale={scale}
+          origin={{ x: Ox + X, y: Oy + Y }}
+          fill={menuOpen ? '#560bd0' : '#0000'}
+          stroke="none"
+          onClick={this.toggleMenu}
+          polygonComp={MenuHex}
+          polygonStyle={{ zIndex: 5000 }}
+        >
+          {
+            ({ centerPoint }) => {
+              const size = (vw > 500) ? 34 : 20
+              const x = centerPoint.x - size / 2
+              const y = centerPoint.y - size / 2
+              if (menuOpen === true) {
+                return <CloseMenuIcon size={`${size}px`} x={x} y={y} />
+              }
+              return <OpenMenuIcon className="menu-icon-open" size={`${size}px`} x={x} y={y} />
+            }
+          }
+        </Hex>
+      </>
+    )
+  }
+
+  renderFullHoneycomb = () => {
     const { vh, vw } = this.state
-    const { l, b, h, scale, origin } = Hex.defaultProps
+    const { l, b, h, origin } = Hex.defaultProps
+    const scale = this.getHexScale()
     const B = scale * b
     const L = scale * l
     const H = scale * h
@@ -102,12 +199,14 @@ class HoneycombMenu extends React.Component {
 
     const hexArea = (L * (2 * B + H)) +  L * H
     const totalScreenArea = (vw * vh)
-    console.log('hexArea, totalScreenArea :', hexArea, totalScreenArea)
+    // console.log('vh: ', vh, 'vw :', vw)
+    // console.log('hexArea, totalScreenArea :', hexArea, totalScreenArea)
     const totalPoints = Math.ceil(totalScreenArea / hexArea)
 
     let points = []
     let initialSameColTimes = 2
     for (let dRowNo = 3;; dRowNo++) {
+      const pointsRow = []
       const startY = (dRowNo % 2 === 0) ? 0 : -1
       if (startY === -1) {
         initialSameColTimes += 1
@@ -115,21 +214,25 @@ class HoneycombMenu extends React.Component {
       const maxY = dRowNo * 2 + 1
       let sameColTimes = initialSameColTimes
       let i = dRowNo
+
       for (let j = startY; j < maxY + 1; ) {
         if ((j * L) > vh) {
           break
         }
-        const point = { y: j, x: i }
+        const point = { y: j, x: i, row: dRowNo }
         if (
-          (j * L) > ((vh / 2) - 300) &&
-          (j * L) < ((vh / 2) + 200) &&
-          (i * (B + H)) > ((vw / 2) - 300) &&
-          (i * (B + H)) < ((vw / 2) + 200)
+          (j * L) > ((vh / 2) - 250) &&
+          (j * L) < ((vh / 2) + 150) &&
+          (i * (B + H)) > ((vw / 2) - 250) &&
+          (i * (B + H)) < ((vw / 2) + 120)
         ) {
-          point.noStroke = true
+          point.stroke = 'none'
+          point.fill = '#eee'
         }
 
-        points.push(point)
+        if ((i * (B + H)) < vw) {
+          pointsRow.push(point)
+        }
         sameColTimes -= 1
         if (sameColTimes > 0) {
           j += 2
@@ -138,13 +241,36 @@ class HoneycombMenu extends React.Component {
           j += 1
         }
       }
-      if (points.length >= totalPoints) break
+      if (pointsRow.length === 0) break
+      points.push(pointsRow)
+      // if (_.flatten(points).length >= totalPoints) break
     }
-    console.log('points, totalPoints : ', points.length, totalPoints)
 
-    const excludePoints = Array.from({ length: 40 }).map(() => _.random(points.length))
+    let rowNo = 1
+    const colorScale = chroma.scale(['#ffd700', '#560bd0'])
+    const pointRows = _.cloneDeep(points)
+    points = []
+    for (const pointRow of pointRows) { // eslint-disable-line
+      const fill = colorScale(rowNo / pointRows.length).hex()
+      // console.log(rowNo, rowNo / pointRows.length)
+      rowNo++
+      for (const point of pointRow) { // eslint-disable-line
+        if (point.stroke !== 'none') {
+          point.fill = fill
+        }
+        points.push(point)
+      }
+    }
+
+    // console.log('points drawn :', points.length, 'target points :', totalPoints)
+
+    const excludePoints = _.concat(
+      // Array.from({ length: (vw > 500) ? 40 : 20 }).map(() => points[_.random(points.length)]),
+      { y: -1, x: 3 }, { x: 4, y: 0 }, { x: 5, y: -1 },
+      { x: 3, y: 1 }, { x: 3, y: 3 }, { x: 1, y: 5 }
+    )
     points = _.filter(points, (point, i) => {
-      if (!point.noStroke && _.includes(excludePoints, i)) {
+      if (point.stroke !== 'none' && _.some(excludePoints, point)) {
         return false
       }
       return true
@@ -154,13 +280,19 @@ class HoneycombMenu extends React.Component {
       <>
         {
           points.map((point, i) => {
-            if (point.noStroke) {
-              return (
-                <Hex origin={{ x: Ox + (point.x * X), y: Oy + (point.y * Y) }} key={i} stroke="none" fill="#560bd0" />
-              )
+            const props = {
+              stroke: point.stroke,
+              fill: point.fill
             }
             return (
-              <Hex origin={{ x: Ox + (point.x * X), y: Oy + (point.y * Y) }} key={i} />
+              <Hex
+                scale={scale}
+                origin={{ x: Ox + (point.x * X), y: Oy + (point.y * Y) }}
+                row={point.row}
+                key={i}
+                polygonStyle={{ zIndex: 2000 }}
+                {...props}
+              />
             )
           })
         }
@@ -170,65 +302,18 @@ class HoneycombMenu extends React.Component {
 
   render() {
     const { vw, vh, menuOpen } = this.state
-    const { l, b, h, scale, origin } = Hex.defaultProps
-    const B = scale * b
-    const H = scale * h
-    const L = scale * l
-    const X = B + H
-    const Y = L
-    const Ox = origin.x
-    const Oy = origin.y
-    let containerSize = { w: 520, h: 300 }
+    let containerSize = {
+      w: (520 < vw) ? 520 : vw / 2,
+      h: (300 < vh) ? 300 : vh
+    }
     if (menuOpen) {
       containerSize = { w: vw, h: vh }
     }
     return (
-      <Container style={{ height: `${containerSize.h}px`, width: `${containerSize.w}px` }}>
-        <MenuIconContainer open={menuOpen} />
-        {
-          (menuOpen === true) ? (
-            <CloseMenuIcon size="40px" onClick={this.toggleMenu} />
-          ) : (
-            <OpenMenuIcon size="40px" onClick={this.toggleMenu} />
-          )
-        }
-        <Svg viewBox={`0 0 ${containerSize.w} ${containerSize.h}`}>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: 'rgb(255,255,0)', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: 'rgb(255,0,0)', stopOpacity: 1 }} />
-          </linearGradient>
-          {/* Row 0 */}
-          <Hex origin={{ x: Ox - X, y: Oy - Y }} />
-          <Hex origin={{ x: Ox + X, y: Oy - Y }} />
-          <Hex origin={{ x: Ox + 3 * X, y: Oy - Y }} />
-          <Hex origin={{ x: Ox + 5 * X, y: Oy - Y }} />
-          {/* Row 1 */}
-          <Hex />
-          <Hex origin={{ x: Ox + 2 * X, y: Oy }}/>
-          <Hex origin={{ x: Ox + 4 * X, y: Oy }}/>
-          {/* Row 2 */}
-          <Hex origin={{ x: Ox - X, y: Oy + Y }} />
-
-          <Hex origin={{ x: Ox + 3 * X, y: Oy + Y }} />
-          {/* Row 3 */}
-          <Hex origin={{ x: Ox, y: Oy + 2 * Y }}/>
-          <Hex origin={{ x: Ox + 2 * X, y: Oy + 2 * Y }}/>
-          {/* Row 4 */}
-          {/* <Hex origin={{ x: Ox - X, y: Oy + 3 * Y }} /> */}
-          <Hex origin={{ x: Ox + X, y: Oy + 3 * Y }} />
-          <Hex origin={{ x: Ox + 3 * X, y: Oy + 3 * Y }} />
-          {/* Row 5 */}
-          <Hex origin={{ x: Ox, y: Oy + 4 * Y }}/>
-          {/* Row 6 */}
-          <Hex origin={{ x: Ox - X, y: Oy + 5 * Y }} />
-          <Hex origin={{ x: Ox + X, y: Oy + 5 * Y }} />
-
-          {
-            (menuOpen === true) && (
-              this.renderMenu()
-            )
-          }
-        </Svg>
+      <Container style={{
+        height: `${containerSize.h}px`,
+        width: `${containerSize.w}px`
+      }}>
         <Menu show={menuOpen}>
           <MenuItem>
             HOME
@@ -237,12 +322,20 @@ class HoneycombMenu extends React.Component {
             BLOG
           </MenuItem>
           <MenuItem>
-            PROJECTS
+            ABOUT
           </MenuItem>
           <MenuItem>
-            CONNECT
+            PROJECTS
           </MenuItem>
         </Menu>
+        <Svg viewBox={`0 0 ${containerSize.w} ${containerSize.h}`}>
+          {this.renderPartialHoneycomb()}
+          {
+            (menuOpen === true) && (
+              this.renderFullHoneycomb()
+            )
+          }
+        </Svg>
       </Container>
     )
   }

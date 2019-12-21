@@ -1,8 +1,9 @@
+import _ from 'lodash'
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 
-const Polygon = styled.polygon`
+export const Polygon = styled.polygon`
   transform: scale(0);
   transition: transform 0.4s ease-in;
 `
@@ -19,7 +20,8 @@ class Hex extends React.Component {
   }
 
   renderHex = () => {
-    let { b, l, h, scale, origin, fill, stroke } = this.props
+    let { b, l, h, scale, origin, fill, stroke, children, onClick, polygonStyle, polygonComp } = this.props
+    const Comp = polygonComp
     b = b * scale
     l = l * scale
     h = h * scale
@@ -33,26 +35,49 @@ class Hex extends React.Component {
         [b + h, 0]
       ]
       points = points.map(
-        ([x, y]) => {
-          return `${x + origin.x + offset.x} ${y + origin.y + offset.y}`
-        }
-      ).join(' ')
+        ([x, y]) => `${x + origin.x + offset.x} ${y + origin.y + offset.y}`
+      )
       return points
     }
     const style = {
-      transformOrigin: `${origin.x + b + (h / 2)}px ${origin.y + h}px`
+      transformOrigin: `${origin.x + b + (h / 2)}px ${origin.y + h}px`,
+      ...polygonStyle
     }
     if (this.state.loaded) {
       style.transform = 'scale(1)'
+    }
+    const points = calcPoints()
+    const centerPoint = {
+      x: (b + h / 2) + origin.x,
+      y: l + origin.y
     }
     return (
       <>
         {
           (fill !== 'none' && stroke !== 'none') && (
-            <Polygon points={calcPoints({ x: 2, y: 5 })} fill="#333" style={style} />
+            <Comp points={calcPoints({ x: 2, y: 5 }).join(' ')} fill="#333" style={style} />
           )
         }
-        <Polygon points={calcPoints()} fill={fill} stroke={stroke} style={style} />
+        <Comp
+          points={points.join(' ')}
+          fill={fill}
+          stroke={stroke}
+          style={style}
+          onClick={onClick}
+        />
+        {/* <text x={centerPoint.x} y={centerPoint.y} style={{ font: 'italic 13px sans-serif' }}>
+          {this.props.row}
+        </text> */}
+        {
+          _.isFunction(children) && (
+            React.Children.toArray(children({ centerPoint })).map(child => (
+              React.cloneElement(child, {
+                onClick,
+                style
+              })
+            ))
+          )
+        }
       </>
     )
   }
@@ -65,10 +90,13 @@ Hex.defaultProps = {
   b: 3,
   l: 4,
   h: 5,
-  scale: 10,
+  scale: 9,
   origin: { x: 0, y: 0 },
   fill: '#ffd700',
-  stroke: '#000'
+  stroke: '#0007',
+  onClick: () => {},
+  polygonStyle: {},
+  polygonComp: Polygon
 }
 Hex.propTypes = {
   b: PropTypes.number,
@@ -80,7 +108,10 @@ Hex.propTypes = {
     y: PropTypes.number
   }),
   fill: PropTypes.string,
-  stroke: PropTypes.string
+  stroke: PropTypes.string,
+  onClick: PropTypes.func,
+  polygonStyle: PropTypes.object, // eslint-disable-line
+  polygonComp: PropTypes.any // eslint-disable-line
 }
 
 export default Hex

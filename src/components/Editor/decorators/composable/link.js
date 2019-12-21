@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Anchor = styled.a`
   position: relative;
   color: #07c;
-  text-decoration: none;
+  text-decoration: none !important;
   padding-bottom: 2px;
   cursor: pointer;
   &:before {

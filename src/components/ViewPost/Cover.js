@@ -15,9 +15,7 @@ const Image = styled.img`
   z-index: -10;
 `
 
-const url = 'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
-
-const CoverImage = () => (
+const CoverImage = ({ url }) => (
   <Container>
     <Image src={url} />
   </Container>

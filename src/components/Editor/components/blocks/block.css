@@ -1,8 +1,20 @@
 .sc-block {
   font-weight: 400;
   font-style: normal;
-  font-size: 20px;
-  line-height: 1.58;
+  font-size: 24px;
+  line-height: 1.6;
   letter-spacing: inherit;
   font-family: Georgia, 'Cambria', 'Times New Roman', Times, serif;
+}
+
+h1.sc-block {
+  font-size: 36px;
+}
+
+h2.sc-block {
+  font-size: 33px;
+}
+
+h3.sc-block {
+  font-size: 30px;
 }

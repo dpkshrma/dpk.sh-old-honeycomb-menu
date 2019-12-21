@@ -198,6 +198,15 @@ class CustomEditor extends React.Component {
     return NOT_HANDLED
   };
 
+  toggleBlockType = (blockType) => {
+    this.props.onChange(
+      RichUtils.toggleBlockType(
+        this.state.editorState,
+        blockType
+      )
+    )
+  }
+
   render() {
     const { editorState, onChange, readOnly } = this.props
     return (

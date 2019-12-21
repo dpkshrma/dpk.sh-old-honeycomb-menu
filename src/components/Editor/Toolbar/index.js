@@ -12,7 +12,7 @@ const Container = styled.div`
   align-items: center;
   position: relative;
   position: sticky;
-  top: 0;
+  top: 38px;
   background: #fff;
   z-index: 300;
 `

@@ -48,7 +48,7 @@ Popper.propTypes = {
   showTip: PropTypes.bool,
   onMenuClick: PropTypes.func,
   onClickOutside: PropTypes.func,
-  Menu: PropTypes.func
+  Menu: PropTypes.any
 }
 Popper.defaultProps = {
   showTip: false,

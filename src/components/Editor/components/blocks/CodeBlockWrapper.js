@@ -113,11 +113,11 @@ export class CodeBlockWrapper extends React.Component {
       const block = editorState.getCurrentContent().getBlockForKey(blockKey)
       newEditorState = updateDataOfBlock(newEditorState, block, { syntax })
     })
-    this.props.setEditorState(newEditorState, () => {
-      this.setState({
-        langPopperIsOpen: false,
-        currentSyntax: syntax
-      })
+    this.setState({
+      langPopperIsOpen: false,
+      currentSyntax: syntax
+    }, () => {
+      this.props.setEditorState(newEditorState)
     })
   };
 

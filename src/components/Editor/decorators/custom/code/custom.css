@@ -1,3 +1,10 @@
 pre {
   padding: 0 1em;
+  color: white !important;
+  font-kerning: none;
+  font-family: Lato, Georgia, 'Cambria', 'Times New Roman', Times, serif !important;
+  line-height: 1.2 !important;
+  letter-spacing: 1px !important;
+  font-size: 16px !important;
+  margin-bottom: 0.7rem !important;
 }

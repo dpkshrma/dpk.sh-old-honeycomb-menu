@@ -43,7 +43,7 @@
   <script>
     function initFreshChat() {
       window.fcWidget.init({
-        token: "5d72578e-d435-41a1-9275-c04eb9e4de1a",
+        token: "4a7e4fc1-1385-40fc-9b91-062c635eed92",
         host: "https://wchat.freshchat.com"
       });
     }
@@ -68,10 +68,13 @@
     function initiateCall() {
       initialize(document, "freshchat-js-sdk");
     }
-    if (window.addEventListener) {
-      window.addEventListener("load", initiateCall, !1);
-    } else {
-      window.attachEvent("load", initiateCall, !1);
+
+    if (!document.location.pathname.startsWith("/admin")) {
+      if (window.addEventListener) {
+        window.addEventListener("load", initiateCall, !1);
+      } else {
+        window.attachEvent("load", initiateCall, !1);
+      }
     }
   </script>  
   </body>
