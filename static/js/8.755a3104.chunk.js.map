@@ -1,0 +1,1 @@
+{"version":3,"sources":["components/Editor/icons/community/codereview.png"],"names":["module","exports"],"mappings":"+FAAAA,EAAOC,QAAU,IAA0B","file":"static/js/8.755a3104.chunk.js","sourcesContent":["module.exports = __webpack_public_path__ + \"static/media/codereview.b7694d93.png\";"],"sourceRoot":""}

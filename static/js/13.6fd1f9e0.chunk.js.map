@@ -1,0 +1,1 @@
+{"version":3,"sources":["components/Editor/icons/community/math.png"],"names":["module","exports"],"mappings":"gGAAAA,EAAOC,QAAU,IAA0B","file":"static/js/13.6fd1f9e0.chunk.js","sourcesContent":["module.exports = __webpack_public_path__ + \"static/media/math.f3d8e2d1.png\";"],"sourceRoot":""}

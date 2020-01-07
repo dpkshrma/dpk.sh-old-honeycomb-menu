@@ -1,0 +1,1 @@
+{"version":3,"sources":["components/Editor/icons/community/sf-icon.svg"],"names":["module","exports"],"mappings":"+FAAAA,EAAOC,QAAU,IAA0B","file":"static/js/3.70e65135.chunk.js","sourcesContent":["module.exports = __webpack_public_path__ + \"static/media/sf-icon.228c21dd.svg\";"],"sourceRoot":""}
