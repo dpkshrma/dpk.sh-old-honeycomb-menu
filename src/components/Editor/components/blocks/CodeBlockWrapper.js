@@ -15,7 +15,8 @@ const SUPPORTED_LANGS = {
   clike: 'C/C++',
   java: 'Java',
   go: 'go',
-  php: 'PHP'
+  php: 'PHP',
+  text: 'PlainText'
 }
 
 const Container = styled.div`
@@ -24,6 +25,7 @@ const Container = styled.div`
   position: relative;
   border: 1px solid #ddd;
   padding-bottom: 16px;
+  margin: 12px 0;
 `
 const MenuBar = styled.div`
   display: flex;
@@ -103,20 +105,23 @@ export class CodeBlockWrapper extends React.Component {
 
   setSyntax = syntax => e => {
     e.preventDefault()
-    const blockKeys = React.Children.map(
-      this.props.children,
-      child => child.props.children.key
-    )
-    const editorState = this.props.getEditorState()
-    let newEditorState = editorState
-    blockKeys.forEach(blockKey => {
-      const block = editorState.getCurrentContent().getBlockForKey(blockKey)
-      newEditorState = updateDataOfBlock(newEditorState, block, { syntax })
-    })
     this.setState({
       langPopperIsOpen: false,
       currentSyntax: syntax
     }, () => {
+      if (syntax === 'text') {
+        syntax = null
+      }
+      const blockKeys = React.Children.map(
+        this.props.children,
+        child => child.props.children.key
+      )
+      const editorState = this.props.getEditorState()
+      let newEditorState = editorState
+      blockKeys.forEach(blockKey => {
+        const block = editorState.getCurrentContent().getBlockForKey(blockKey)
+        newEditorState = updateDataOfBlock(newEditorState, block, { syntax })
+      })
       this.props.setEditorState(newEditorState)
     })
   };

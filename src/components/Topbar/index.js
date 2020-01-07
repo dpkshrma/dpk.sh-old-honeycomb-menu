@@ -1,6 +1,7 @@
+import _ from 'lodash'
 import React from 'react'
 import styled from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import HoneycombMenu from './HoneycombMenu'
 
 const Container = styled.div`
@@ -41,6 +42,7 @@ class Topbar extends React.Component {
     history.push('/')
   }
   render() {
+    const isLocal = _.get(document, 'location.hostname') === 'localhost'
     return (
       <Container>
         <HoneycombMenu />
@@ -48,7 +50,12 @@ class Topbar extends React.Component {
           <Brand onClick={this.onBrandClick}>
             dpk<Dot>.</Dot>sh
             <Tagline>
-              Learn, Develop, Teach
+              Learn, Develop,
+              {
+                isLocal ? (
+                  <Link to="/admin">Teach</Link>
+                ) : ` Teach`
+              }
             </Tagline>
           </Brand>
         </Content>

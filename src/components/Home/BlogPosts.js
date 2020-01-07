@@ -37,7 +37,7 @@ class BlogPosts extends React.Component {
 
   openPost = (id) => () => {
     const { history } = this.props
-    history.push(`/posts/${id}`)
+    history.push(`/${id}`)
   }
 
   render() {

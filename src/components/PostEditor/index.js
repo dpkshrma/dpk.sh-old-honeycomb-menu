@@ -65,7 +65,10 @@ class PostEditor extends React.Component {
     saveError: '',
     publishing: false,
     published: false,
-    publishError: ''
+    publishError: '',
+    unpublishing: false,
+    unpublished: false,
+    unpublishError: ''
   }
 
   componentDidMount() {
@@ -141,9 +144,33 @@ class PostEditor extends React.Component {
     }
   }
 
+  unpublish = async () => {
+    try {
+      this.setState({ unpublishing: true })
+      const { onUnpublish } = this.props
+      await onUnpublish()
+      this.setState({ unpublishing: false, unpublished: true }, async () => {
+        await wait(2000)
+        this.setState({ unpublished: false })
+      })
+    } catch(err) {
+      console.error(err)
+      const defaultErrMsg = 'Some unknown error occured'
+      const newState = {
+        unpublished: false,
+        unpublishing: false,
+        unpublishError: err.message || defaultErrMsg
+      }
+      this.setState(newState, async () => {
+        await wait(2000)
+        this.setState({ unpublishError: '' })
+      })
+    }
+  }
+
   render() {
     const { title, summary, coverImageUrl, editorState, onTitleChange, onSummaryChange, onEditorChange, onCoverChange } = this.props
-    const { saving, saved, saveError, publishing, published, publishError } = this.state
+    const { saving, saved, saveError, publishing, published, publishError, unpublishing, unpublished, unpublishError } = this.state
     console.log(coverImageUrl, typeof coverImageUrl)
     return (
       <Container>
@@ -198,12 +225,37 @@ class PostEditor extends React.Component {
                 </FormFeedback>
               )
             }
+            {
+              (unpublishing === true) && (
+                <FormFeedback>
+                  <Spinner size="sm" color="success" />{' '}
+                  Unpublishing...
+                </FormFeedback>
+              )
+            }
+            {
+              (unpublished === true) && (
+                <FormFeedback>
+                  <span role="img" aria-label="thumbs-up">👍</span> Unpublished Successfully
+                </FormFeedback>
+              )
+            }
+            {
+              (unpublishError.length > 0) && (
+                <FormFeedback error>
+                  {unpublishError}
+                </FormFeedback>
+              )
+            }
             <div style={{ display: 'flex' }}>
               <Button onClick={this.save} color="primary" style={{ marginRight: '4px' }}>
                 Save
               </Button>
-              <Button onClick={this.publish} color="danger">
+              <Button onClick={this.publish} color="success" style={{ marginRight: '4px' }}>
                 Publish
+              </Button>
+              <Button onClick={this.unpublish} color="danger">
+                Unpublish
               </Button>
             </div>
           </Toolbar>
@@ -249,6 +301,7 @@ PostEditor.defaultProps = {
 PostEditor.propTypes = {
   onSave: PropTypes.func.isRequired,
   onPublish: PropTypes.func.isRequired,
+  onUnpublish: PropTypes.func.isRequired,
   afterSave: PropTypes.func,
   onEditorChange: PropTypes.func.isRequired,
   onTitleChange: PropTypes.func.isRequired,

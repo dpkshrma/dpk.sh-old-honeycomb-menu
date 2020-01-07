@@ -26,6 +26,10 @@ class PostList extends React.Component {
   }
 
   async componentDidMount() {
+    await this.fetchPosts()
+  }
+
+  fetchPosts = async () => {
     const response = await axios.get(config.apiUrl + '/posts')
     const posts = _.get(response, 'data.items')
     this.setState({ posts })
@@ -37,11 +41,24 @@ class PostList extends React.Component {
     history.push(url)
   }
 
+  confirmDeletePost = () => window.confirm('This action will permanently delete this post. Press OK if you want to proceed.');
   deletePost = (id) => async () => {
-    await axios.delete(config.apiUrl + '/posts/' + id)
-    this.setState(state => ({
-      posts: state.posts.filter(post => post.id !== id)
-    }))
+    const consented = this.confirmDeletePost()
+    if (consented) {
+      await axios.delete(config.apiUrl + '/posts/' + id)
+      this.setState(state => ({
+        posts: state.posts.filter(post => post.id !== id)
+      }))
+    }
+  }
+
+  confirmPublishAll = () => window.confirm('This action will publish all the posts. Press OK if you want to proceed.');
+  publishAll = async () => {
+    const consented = this.confirmPublishAll()
+    if (consented) {
+      await axios.post(config.apiUrl + '/posts/publish_all')
+      await this.fetchPosts()
+    }
   }
 
   render() {
@@ -51,11 +68,14 @@ class PostList extends React.Component {
     }
     return (
       <Container style={{ padding: '40px 0' }}>
-        <Link to="/admin/new" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>
+        <Link to="/admin/new" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', marginRight: '4px' }}>
           <Button color="success">
             Create a new Post
           </Button>
         </Link>
+        <Button color="danger" onClick={this.publishAll}>
+          Publish All
+        </Button>
         {
           posts.map((post, i) => (
             <PostListItem key={i}>
@@ -65,7 +85,10 @@ class PostList extends React.Component {
                 </PostListItem.Title>
                 <DeletePost size="30" onClick={this.deletePost(post.id)} title="Delete Post" />
               </Heading>
-              <PostListItem.Subtitle>{_.get(post, 'ttr.text')}</PostListItem.Subtitle>
+              <PostListItem.Subtitle>
+                {_.get(post, 'ttr.text')} -
+                {` `}{_.get(post, 'status')}
+              </PostListItem.Subtitle>
               <PostListItem.Summary>
                 {post.summary}
               </PostListItem.Summary>

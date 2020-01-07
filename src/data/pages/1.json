@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "81Fp5iHG5",
+      "title": "How to make a browser extension with React & Redux?",
+      "summary": "Learn how to make a fully functional chrome/firefox extension with all the goodness of React and Redux.",
+      "status": "PUBLISHED",
+      "createdAt": "2019-12-14T19:38:11.424Z",
+      "ttr": {
+        "text": "4 min read",
+        "minutes": 3.3,
+        "time": 198000,
+        "words": 660
+      },
+      "updatedAt": "2020-01-07T03:52:33.271Z"
+    }
+  ]
+}
