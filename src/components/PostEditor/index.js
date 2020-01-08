@@ -95,11 +95,11 @@ class PostEditor extends React.Component {
   save = async () => {
     try {
       this.setState({ saving: true })
-      const { onSave, afterSave, editorState, title, summary, coverImageUrl } = this.props
+      const { onSave, afterSave, editorState, title, summary, slug, coverImageUrl } = this.props
       const plainText = editorState.getCurrentContent().getPlainText()
       const ttr = readingTime(plainText)
       const body = convertToRaw(editorState.getCurrentContent())
-      const response = await onSave({ title, summary, body, coverImageUrl, ttr })
+      const response = await onSave({ title, summary, body, coverImageUrl, ttr, slug })
       this.setState({ saving: false, saved: true }, async () => {
         await wait(2000)
         this.setState({ saved: false })
@@ -169,8 +169,29 @@ class PostEditor extends React.Component {
   }
 
   render() {
-    const { title, summary, coverImageUrl, editorState, onTitleChange, onSummaryChange, onEditorChange, onCoverChange } = this.props
-    const { saving, saved, saveError, publishing, published, publishError, unpublishing, unpublished, unpublishError } = this.state
+    const {
+      title,
+      summary,
+      coverImageUrl,
+      slug,
+      editorState,
+      onTitleChange,
+      onSummaryChange,
+      onEditorChange,
+      onCoverChange,
+      onSlugChange
+    } = this.props
+    const {
+      saving,
+      saved,
+      saveError,
+      publishing,
+      published,
+      publishError,
+      unpublishing,
+      unpublished,
+      unpublishError
+    } = this.state
     console.log(coverImageUrl, typeof coverImageUrl)
     return (
       <Container>
@@ -277,6 +298,12 @@ class PostEditor extends React.Component {
             onChange={onTitleChange}
           />
           <Input
+            type="text"
+            placeholder="Slug"
+            value={slug}
+            onChange={onSlugChange}
+          />
+          <Input
             type="textarea"
             placeholder="Summary"
             rows={4}
@@ -307,7 +334,9 @@ PostEditor.propTypes = {
   onTitleChange: PropTypes.func.isRequired,
   onSummaryChange: PropTypes.func.isRequired,
   onCoverChange: PropTypes.func.isRequired,
+  onSlugChange: PropTypes.func.isRequired,
   editorState: PropTypes.object,
+  slug: PropTypes.string,
   title: PropTypes.string,
   summary: PropTypes.string
 }

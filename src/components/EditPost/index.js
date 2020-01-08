@@ -9,6 +9,7 @@ class EditPost extends React.Component {
   state = {
     title: '',
     summary: '',
+    slug: '',
     editorState: createEditorState()
   }
 
@@ -16,6 +17,7 @@ class EditPost extends React.Component {
   onTitleChange = (e) => this.setState({ title: e.target.value })
   onSummaryChange = (e) => this.setState({ summary: e.target.value })
   onCoverChange = (e) => this.setState({ coverImageUrl: e.target.value })
+  onSlugChange = (e) => this.setState({ slug: e.target.value })
 
   async componentDidMount() {
     const { match } = this.props
@@ -46,13 +48,15 @@ class EditPost extends React.Component {
   }
 
   render() {
-    const { title, summary, coverImageUrl, editorState } = this.state
+    const { title, summary, coverImageUrl, editorState, slug } = this.state
     return (
       <PostEditor
         title={title}
         summary={summary}
         coverImageUrl={coverImageUrl}
+        slug={slug}
         editorState={editorState}
+        onSlugChange={this.onSlugChange}
         onEditorChange={this.onEditorChange}
         onTitleChange={this.onTitleChange}
         onSummaryChange={this.onSummaryChange}

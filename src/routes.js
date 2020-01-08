@@ -14,7 +14,7 @@ export default (
       <Route exact path="/admin" component={PostList} />
       <Route exact path="/admin/new" component={NewPost} />
       <Route exact path="/admin/posts/:id/edit" component={EditPost} />
-      <Route exact path="/:id" component={ViewPost} />
+      <Route exact path="/:slug" component={ViewPost} />
     </Switch>
   </App>
 )

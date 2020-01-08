@@ -49,8 +49,7 @@ class ViewPost extends React.Component {
 
   getCurrentPost = async () => {
     try {
-      const { params } = this.props.match
-      const postId = _.get(params, 'id')
+      const postId = _.get(this.props, 'location.state.postId')
       const post = _.assign({}, (await import(`../../data/posts/${postId}.json`)).default)
       post.body = createEditorState(post.body)
       return post

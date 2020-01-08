@@ -1978,7 +1978,7 @@
     }
   },
   "createdAt": "2019-12-14T19:38:11.424Z",
-  "updatedAt": "2020-01-07T03:52:33.271Z",
+  "updatedAt": "2020-01-08T08:35:43.011Z",
   "ttr": {
     "text": "4 min read",
     "minutes": 3.3,
@@ -1986,5 +1986,6 @@
     "words": 660
   },
   "summary": "Learn how to make a fully functional chrome/firefox extension with all the goodness of React and Redux.",
+  "slug": "make-browser-extension",
   "id": "81Fp5iHG5"
 }

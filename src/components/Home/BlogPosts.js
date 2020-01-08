@@ -35,9 +35,12 @@ class BlogPosts extends React.Component {
     this.setState({ posts })
   }
 
-  openPost = (id) => () => {
+  openPost = ({ id, slug }) => () => {
     const { history } = this.props
-    history.push(`/${id}`)
+    history.push({
+      pathname: `/${slug}`,
+      state: { postId: id }
+    })
   }
 
   render() {
@@ -49,11 +52,11 @@ class BlogPosts extends React.Component {
         {
           posts.items.map(post => (
             <Post key={post.id}>
-              <Post.Title onClick={this.openPost(post.id)}>{post.title}</Post.Title>
+              <Post.Title onClick={this.openPost(post)}>{post.title}</Post.Title>
               <Post.Subtitle><Clock size="20px" />{_.get(post, 'ttr.text', '')}</Post.Subtitle>
               <Post.Summary>
                 {post.summary}
-                <Post.Link onClick={this.openPost(post.id)}>&nbsp; Read</Post.Link>
+                <Post.Link onClick={this.openPost(post)}>&nbsp; Read</Post.Link>
               </Post.Summary>
             </Post>
           ))
